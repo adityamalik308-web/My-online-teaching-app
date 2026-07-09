@@ -421,7 +421,7 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
 <footer>
   <div class="wrap footer-inner">
     <span>© <span id="year"></span> <span id="brandName2">Numerly</span>. All sessions conducted online.</span>
-    <span><a href="mailto:hello@example.com">hello@example.com</a> · <a href="tel:+910000000000">+91 00000 00000</a></span>
+    <span><a href="mailto:adityamalik308@gmail.com">adityamalik308@gmail.com</a> · <a href="tel:+917017929599">+91 70179 29599</a> (call / WhatsApp)</span>
   </div>
 </footer>
 </div>
@@ -502,7 +502,59 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
+/* =========================================================
+   FIREBASE SETUP — do this once, then this site has real,
+   permanent student accounts (free tier is plenty for a
+   personal tutoring practice).
+
+   1. Go to https://console.firebase.google.com → "Add project"
+      (free) → name it anything, e.g. "numerly-tutoring".
+   2. In the left sidebar: Build > Authentication > Get started
+      > Sign-in method tab > enable "Email/Password".
+   3. In the left sidebar: Build > Firestore Database > Create
+      database > choose a region close to your students >
+      start in "production mode".
+   4. Click the gear icon (top left) > Project settings >
+      scroll to "Your apps" > click the </> (web) icon >
+      register the app (nickname anything) > it will show you
+      a firebaseConfig object — copy it and paste it below,
+      replacing the placeholder values.
+   5. Still in Firestore: go to the "Rules" tab and paste the
+      rules given in the chat message that shipped this file,
+      then click Publish. This makes sure each student can
+      only read/write their own data.
+   6. Save this file and open it in a browser (or deploy it —
+      see the hosting instructions in chat). Sign-ups will now
+      create real accounts that persist across visits/devices.
+   ========================================================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const fbAuth = getAuth(fbApp);
+const fbDb = getFirestore(fbApp);
+const fb = {
+  auth: fbAuth, db: fbDb,
+  createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut,
+  doc, setDoc, getDoc, addDoc, collection, getDocs
+};
+
 /* =========================================================
    SITE CONFIG — edit this block to make the site your own.
    ========================================================= */
@@ -593,11 +645,9 @@ SITE.courses.forEach(c=>{
   grid.appendChild(el);
 });
 
-// ---- in-memory "database" (demo only, resets on reload) ----
-let users = {};          // email -> {name,email,password,grade,course}
-let currentUser = null;
-let sessionHistory = [];  // per-user session logs (mock)
-let pendingRequests = []; // per-user requested sessions
+// ---- live session state (backed by Firebase Auth + Firestore) ----
+let currentUser = null;      // Firebase Auth uid
+let currentUserData = null;  // cached Firestore profile doc for currentUser
 
 function toast(msg){
   const t = document.getElementById("toast");
@@ -624,7 +674,7 @@ function authFormHTML(mode){
       <div class="field"><label>Password</label><input required type="password" id="f_password" placeholder="••••••••"></div>
       <div class="form-error" id="f_error"></div>
       <button class="btn btn-primary" type="submit" style="width:100%;margin-top:4px;">${mode==='signup'?'Create account & enroll':'Log in'}</button>
-      <div class="form-note">Demo mode: accounts live in this browser tab only and reset on page reload. To make accounts and progress permanent for real students, connect a backend (e.g. Firebase Auth + Firestore, or Supabase) — ask your developer (or Claude) to wire that in.</div>
+      <div class="form-note">Your account and progress are saved securely and will be there next time you log in, on any device.</div>
     </form>`;
 }
 let authMode = "signup";
@@ -653,47 +703,73 @@ function openAuth(mode, courseId){
 }
 function closeAuth(){ document.getElementById("authModal").style.display = "none"; }
 
-function handleAuth(evt, mode){
+async function handleAuth(evt, mode){
   evt.preventDefault();
   const scope = evt.target;
   const email = scope.querySelector("#f_email").value.trim().toLowerCase();
   const password = scope.querySelector("#f_password").value;
   const errEl = scope.querySelector("#f_error");
   errEl.style.display = "none";
+  const submitBtn = scope.querySelector('button[type="submit"]');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Please wait…";
 
-  if (mode === "signup"){
-    const name = scope.querySelector("#f_name").value.trim();
-    const grade = scope.querySelector("#f_grade").value.trim();
-    const course = scope.querySelector("#f_course").value;
-    if (users[email]){
-      errEl.textContent = "An account with this email already exists — try logging in instead.";
-      errEl.style.display = "block";
-      return false;
+  try{
+    if (mode === "signup"){
+      const name = scope.querySelector("#f_name").value.trim();
+      const grade = scope.querySelector("#f_grade").value.trim();
+      const course = scope.querySelector("#f_course").value;
+      const cred = await fb.createUserWithEmailAndPassword(fb.auth, email, password);
+      const uid = cred.user.uid;
+      const profile = {
+        name, email, grade,
+        courses: [course],
+        progress: { [course]: buildMockProgress(course) },
+        createdAt: new Date().toISOString(),
+      };
+      await fb.setDoc(fb.doc(fb.db, "students", uid), profile);
+      await fb.addDoc(fb.collection(fb.db, "students", uid, "sessionHistory"), {
+        course, date: relativeDate(-6),
+        note: "Kickoff session — assessed current level and set goals.",
+        createdAt: new Date().toISOString(),
+      });
+      currentUser = uid;
+      currentUserData = profile;
+      toast("Account created — welcome to " + SITE.brand + "!");
+    } else {
+      const cred = await fb.signInWithEmailAndPassword(fb.auth, email, password);
+      const uid = cred.user.uid;
+      const snap = await fb.getDoc(fb.doc(fb.db, "students", uid));
+      if (!snap.exists()) throw {code:"custom/no-profile"};
+      currentUser = uid;
+      currentUserData = snap.data();
+      toast("Welcome back, " + currentUserData.name.split(" ")[0] + "!");
     }
-    users[email] = {
-      name, email, password, grade,
-      courses: [course],
-      progress: {[course]: buildMockProgress(course)},
-    };
-    sessionHistory[email] = [
-      {date: relativeDate(-6), course, note: "Kickoff session — assessed current level and set goals."},
-    ];
-    pendingRequests[email] = [];
-    currentUser = email;
-    toast("Account created — welcome to " + SITE.brand + "!");
-  } else {
-    const u = users[email];
-    if (!u || u.password !== password){
-      errEl.textContent = "No matching account found for this session. Sign up first, or check your details.";
-      errEl.style.display = "block";
-      return false;
-    }
-    currentUser = email;
-    toast("Welcome back, " + u.name.split(" ")[0] + "!");
+    closeAuth();
+    await enterDashboard();
+  } catch(err){
+    errEl.textContent = friendlyAuthError(err);
+    errEl.style.display = "block";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
   }
-  closeAuth();
-  enterDashboard();
   return false;
+}
+
+function friendlyAuthError(err){
+  const map = {
+    "auth/email-already-in-use": "An account with this email already exists — try logging in instead.",
+    "auth/invalid-email": "That doesn't look like a valid email address.",
+    "auth/weak-password": "Password should be at least 6 characters.",
+    "auth/user-not-found": "No account found with that email — sign up first.",
+    "auth/wrong-password": "Incorrect password. Try again.",
+    "auth/invalid-credential": "Incorrect email or password.",
+    "auth/network-request-failed": "Network error — check your connection and try again.",
+    "custom/no-profile": "Account exists but no profile was found — contact your tutor.",
+  };
+  return map[err && err.code] || "Something went wrong. If you're the site owner: check that firebaseConfig near the top of the script has been filled in with real values from your Firebase project.";
 }
 
 function buildMockProgress(courseId){
@@ -708,15 +784,17 @@ function relativeDate(offsetDays){
   return d.toISOString().split("T")[0];
 }
 
-function logout(){
+async function logout(){
+  await fb.signOut(fb.auth);
   currentUser = null;
+  currentUserData = null;
   document.getElementById("dashboard").classList.remove("active");
   document.getElementById("site").classList.remove("hidden");
   window.scrollTo(0,0);
 }
 
-function enterDashboard(){
-  const u = users[currentUser];
+async function enterDashboard(){
+  const u = currentUserData;
   document.getElementById("site").classList.add("hidden");
   document.getElementById("dashboard").classList.add("active");
   document.getElementById("dashName").textContent = u.name.split(" ")[0];
@@ -726,6 +804,7 @@ function enterDashboard(){
   oc.innerHTML = "";
   u.courses.forEach(cid=>{
     const c = SITE.courses.find(x=>x.id===cid);
+    if(!c) return;
     const chip = document.createElement("span");
     chip.className = "topic-list-chip";
     chip.style.cssText = "background:var(--paper);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:13.5px;font-family:var(--mono);";
@@ -733,17 +812,18 @@ function enterDashboard(){
     oc.appendChild(chip);
   });
 
-  // next session (mock: 3 days out for first course)
-  document.getElementById("nextSessionCourse").textContent = SITE.courses.find(c=>c.id===u.courses[0]).name + " — 1:1 session";
+  // next session (mock: 3 days out for first course — replace manually per student in Firestore once scheduled)
+  const firstCourse = SITE.courses.find(c=>c.id===u.courses[0]);
+  document.getElementById("nextSessionCourse").textContent = (firstCourse ? firstCourse.name : "Math") + " — 1:1 session";
   document.getElementById("nextSessionWhen").textContent = relativeDate(3) + " · 5:00 PM · Video call link sent 1hr before";
 
   renderProgress();
-  renderSessionsPanel();
+  await renderSessionsPanel();
   switchPanel("overview");
 }
 
 function renderProgress(){
-  const u = users[currentUser];
+  const u = currentUserData;
   const wrap = document.getElementById("progressList");
   wrap.innerHTML = "";
   u.courses.forEach(cid=>{
@@ -760,43 +840,66 @@ function renderProgress(){
   });
 }
 
-function renderSessionsPanel(){
-  const u = users[currentUser];
+async function renderSessionsPanel(){
+  const u = currentUserData;
   const sel = document.getElementById("reqCourse");
   sel.innerHTML = u.courses.map(cid=>{
     const c = SITE.courses.find(x=>x.id===cid);
-    return `<option value="${cid}">${c.name}</option>`;
+    return c ? `<option value="${cid}">${c.name}</option>` : "";
   }).join("");
 
   const hist = document.getElementById("historyList");
-  const items = [...(pendingRequests[currentUser]||[]), ...(sessionHistory[currentUser]||[])];
-  hist.innerHTML = items.length ? "" : `<p style="font-size:14px;">No sessions yet — request one above.</p>`;
-  (pendingRequests[currentUser]||[]).forEach(r=>{
+  hist.innerHTML = `<p style="font-size:14px;">Loading sessions…</p>`;
+
+  let pending = [], past = [];
+  try{
+    const reqSnap = await fb.getDocs(fb.collection(fb.db, "students", currentUser, "sessionRequests"));
+    reqSnap.forEach(d=>pending.push(d.data()));
+    const histSnap = await fb.getDocs(fb.collection(fb.db, "students", currentUser, "sessionHistory"));
+    histSnap.forEach(d=>past.push(d.data()));
+  } catch(e){
+    hist.innerHTML = `<p style="font-size:14px;">Couldn't load session history right now.</p>`;
+    return;
+  }
+  pending.sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+  past.sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+
+  hist.innerHTML = (pending.length + past.length) ? "" : `<p style="font-size:14px;">No sessions yet — request one above.</p>`;
+  pending.forEach(r=>{
     const c = SITE.courses.find(x=>x.id===r.course);
     const row = document.createElement("div");
     row.className = "history-item";
-    row.innerHTML = `<div><div style="font-weight:500;">${c.name}${r.note?' — '+r.note:''}</div><span class="pending-tag">Pending confirmation</span></div><div class="date">${r.date}</div>`;
+    row.innerHTML = `<div><div style="font-weight:500;">${c?c.name:r.course}${r.note?' — '+r.note:''}</div><span class="pending-tag">Pending confirmation</span></div><div class="date">${r.date}</div>`;
     hist.appendChild(row);
   });
-  (sessionHistory[currentUser]||[]).forEach(s=>{
+  past.forEach(s=>{
     const c = SITE.courses.find(x=>x.id===s.course);
     const row = document.createElement("div");
     row.className = "history-item";
-    row.innerHTML = `<div><div style="font-weight:500;">${c.name}</div><div style="font-size:13.5px;margin-top:2px;">${s.note}</div></div><div class="date">${s.date}</div>`;
+    row.innerHTML = `<div><div style="font-weight:500;">${c?c.name:s.course}</div><div style="font-size:13.5px;margin-top:2px;">${s.note}</div></div><div class="date">${s.date}</div>`;
     hist.appendChild(row);
   });
 }
 
-function requestSession(evt){
+async function requestSession(evt){
   evt.preventDefault();
   const course = document.getElementById("reqCourse").value;
   const date = document.getElementById("reqDate").value;
   const note = document.getElementById("reqNote").value;
-  if(!pendingRequests[currentUser]) pendingRequests[currentUser] = [];
-  pendingRequests[currentUser].unshift({course, date, note});
-  toast("Session request sent — you'll get a confirmation by email.");
-  evt.target.reset();
-  renderSessionsPanel();
+  const btn = evt.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  try{
+    await fb.addDoc(fb.collection(fb.db, "students", currentUser, "sessionRequests"), {
+      course, date, note, status: "pending", createdAt: new Date().toISOString(),
+    });
+    toast("Session request sent — you'll get a confirmation by email.");
+    evt.target.reset();
+    await renderSessionsPanel();
+  } catch(e){
+    toast("Couldn't send that request — please try again.");
+  } finally {
+    btn.disabled = false;
+  }
   return false;
 }
 
@@ -806,6 +909,29 @@ function switchPanel(name){
   document.querySelectorAll(".dash-side button").forEach(b=>b.classList.remove("active"));
   document.querySelector(`.dash-side button[data-panel="${name}"]`).classList.add("active");
 }
+
+// ---- restore login automatically on return visits ----
+fb.onAuthStateChanged(fb.auth, async (user)=>{
+  if (user && !currentUser){
+    try{
+      const snap = await fb.getDoc(fb.doc(fb.db, "students", user.uid));
+      if (snap.exists()){
+        currentUser = user.uid;
+        currentUserData = snap.data();
+        await enterDashboard();
+      }
+    } catch(e){ /* not signed in with a valid profile yet — ignore */ }
+  }
+});
+
+// ---- expose functions referenced by inline HTML handlers (needed since this is a module script) ----
+window.openAuth = openAuth;
+window.closeAuth = closeAuth;
+window.renderAuth = renderAuth;
+window.handleAuth = handleAuth;
+window.logout = logout;
+window.switchPanel = switchPanel;
+window.requestSession = requestSession;
 </script>
 </body>
 </html>
