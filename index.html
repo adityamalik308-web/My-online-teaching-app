@@ -108,26 +108,46 @@ nav{
 .hero-stats .num{font-size:26px;font-weight:600;color:var(--ink);}
 .hero-stats .lbl{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
 
-.hero-art{position:relative;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px 24px 22px;box-shadow:0 24px 48px -24px rgba(27,42,74,.25);}
+.hero-art{position:relative;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px 26px 28px;box-shadow:0 24px 48px -24px rgba(27,42,74,.25);}
 .concept-caption{
-  font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--ink-soft);margin-bottom:18px;text-align:center;
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-soft);margin-bottom:22px;text-align:center;
 }
-.flip-stage{display:flex;justify-content:center;perspective:1000px;}
+.flip-stage{display:flex;justify-content:center;perspective:1200px;}
 .flip-card{
-  width:210px;height:210px;background:var(--paper);border:1px solid var(--border);border-radius:18px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
-  box-shadow:0 14px 30px -18px rgba(27,42,74,.3);
-  transform:rotateY(0deg);opacity:1;
+  width:290px;height:290px;background:linear-gradient(160deg,#ffffff, var(--paper));
+  border:1.5px solid var(--border);border-radius:26px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  box-shadow:0 22px 44px -20px rgba(27,42,74,.35);
+  position:relative;
 }
-.flip-card svg{width:78px;height:78px;}
-.flip-card .label{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink-soft);letter-spacing:.02em;}
-.flip-dots{display:flex;justify-content:center;gap:7px;margin-top:20px;}
-.flip-dots span{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .2s ease, transform .2s ease;}
-.flip-dots span.active{background:var(--ink);transform:scale(1.3);}
+.flip-card .idx-badge{
+  position:absolute;top:20px;right:22px;font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);
+  letter-spacing:.04em;
+}
+.flip-card .icon-wrap{
+  width:136px;height:136px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px dashed var(--border);
+  transition:border-color .2s ease, background .2s ease;
+}
+.flip-card svg{width:84px;height:84px;}
+.flip-card .label{
+  display:flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:17.5px;font-weight:600;color:var(--ink);letter-spacing:.01em;
+}
+.flip-card .label .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+.flip-dots{display:flex;justify-content:center;gap:8px;margin-top:26px;}
+.flip-dots span{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background .2s ease, transform .2s ease;}
+.flip-dots span.active{background:var(--ink);transform:scale(1.4);}
 @media (max-width:900px){
   .hero-grid{grid-template-columns:1fr;}
   .hero-art{order:-1;}
+}
+@media (max-width:480px){
+  .flip-card{width:230px;height:230px;}
+  .flip-card .icon-wrap{width:108px;height:108px;}
+  .flip-card svg{width:66px;height:66px;}
 }
 
 /* ---------- SECTION SHELLS ---------- */
@@ -217,6 +237,35 @@ section{padding:88px 0;}
   width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14.5px;font-family:var(--sans);background:#fff;color:var(--ink);
 }
 .form-note{font-size:12px;color:var(--ink-soft);margin-top:12px;line-height:1.5;}
+.pay-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px dashed var(--border);font-size:14px;}
+.pay-row:last-of-type{border-bottom:none;}
+.pay-row span{color:var(--ink-soft);}
+.pay-row b{font-family:var(--mono);font-weight:600;color:var(--ink);word-break:break-all;}
+.pay-row .btn{flex:none;}
+
+/* ---- study materials: chapters, slide viewer, quiz ---- */
+.chapter-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px dashed var(--border);cursor:pointer;}
+.chapter-row:last-child{border-bottom:none;}
+.chapter-row:hover .chapter-title{color:var(--accent-ink);}
+.chapter-row[data-locked="1"]{cursor:default;}
+.chapter-title{font-size:14.5px;font-weight:500;transition:color .15s ease;}
+.chapter-status{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:999px;white-space:nowrap;}
+.chapter-status.ready{background:#EAF5EF;color:var(--success);}
+.chapter-status.soon{background:var(--paper);color:var(--ink-soft);}
+.slide-view{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:28px;min-height:230px;}
+.slide-view h4{font-family:var(--serif);font-size:21px;font-weight:500;margin:0 0 16px;}
+.slide-view ul{margin:0;padding-left:20px;color:var(--ink-soft);font-size:15px;line-height:1.75;}
+.slide-nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;}
+.slide-dots{display:flex;gap:6px;}
+.slide-dots span{width:6px;height:6px;border-radius:50%;background:var(--border);}
+.slide-dots span.active{background:var(--ink);}
+.quiz-q{margin-bottom:20px;}
+.quiz-q .qtext{font-weight:600;margin-bottom:10px;font-size:14.5px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;margin-bottom:8px;cursor:pointer;font-size:14px;}
+.quiz-opt input{accent-color:var(--ink);}
+.quiz-opt.correct{border-color:var(--success);background:#EAF5EF;}
+.quiz-opt.incorrect{border-color:var(--pen);background:#FBEBEA;}
+.quiz-result{font-family:var(--mono);font-weight:600;margin-top:4px;font-size:16px;}
 .form-error{font-size:13px;color:var(--pen);margin-top:8px;display:none;}
 
 /* ---------- FOOTER ---------- */
@@ -387,19 +436,28 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
         <h3>Single session</h3>
         <div class="amount">₹800 <span class="per">/ session</span></div>
         <ul><li>60-minute 1:1 session</li><li>Any topic, no commitment</li><li>Great for trying it out</li></ul>
-        <button class="btn btn-ghost" onclick="openAuth('signup')">Book one session</button>
+        <div style="display:flex;gap:8px;margin-top:auto;">
+          <button class="btn btn-ghost" style="flex:1;" onclick="openAuth('signup')">Book</button>
+          <button class="btn btn-ghost" style="flex:1;" onclick="openPay('Single session — ₹800')">Pay via UPI</button>
+        </div>
       </div>
       <div class="price-card featured">
         <h3>Monthly — weekly pace</h3>
         <div class="amount">₹2,800 <span class="per">/ month</span></div>
         <ul><li>4 sessions (₹700/session)</li><li>Personal syllabus & tracking</li><li>Priority scheduling</li></ul>
-        <button class="btn btn-primary" onclick="openAuth('signup')">Start this plan</button>
+        <div style="display:flex;gap:8px;margin-top:auto;">
+          <button class="btn btn-primary" style="flex:1;" onclick="openAuth('signup')">Start plan</button>
+          <button class="btn btn-ghost" style="flex:1;" onclick="openPay('Monthly weekly plan — ₹2,800')">Pay via UPI</button>
+        </div>
       </div>
       <div class="price-card">
         <h3>Monthly — twice weekly</h3>
         <div class="amount">₹5,200 <span class="per">/ month</span></div>
         <ul><li>8 sessions (₹650/session)</li><li>Best for exam prep</li><li>Full progress dashboard</li></ul>
-        <button class="btn btn-ghost" onclick="openAuth('signup')">Start this plan</button>
+        <div style="display:flex;gap:8px;margin-top:auto;">
+          <button class="btn btn-ghost" style="flex:1;" onclick="openAuth('signup')">Start plan</button>
+          <button class="btn btn-ghost" style="flex:1;" onclick="openPay('Monthly twice-weekly plan — ₹5,200')">Pay via UPI</button>
+        </div>
       </div>
     </div>
   </div>
@@ -438,6 +496,26 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
   </div>
 </div>
 
+<!-- =========================== PAYMENT MODAL =========================== -->
+<div id="payModal" style="display:none;position:fixed;inset:0;background:rgba(27,42,74,.45);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:420px;width:100%;">
+    <div class="auth-card" id="payModalBody" style="box-shadow:0 30px 60px -20px rgba(0,0,0,.4);"></div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-sm" style="border-color:transparent;color:#fff;" onclick="closePay()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================== MATERIAL MODAL (slides + quiz) =========================== -->
+<div id="materialModal" style="display:none;position:fixed;inset:0;background:rgba(27,42,74,.55);z-index:110;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:640px;width:100%;">
+    <div class="auth-card" id="materialModalBody" style="box-shadow:0 30px 60px -20px rgba(0,0,0,.4);max-height:82vh;overflow-y:auto;"></div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-sm" style="border-color:transparent;color:#fff;" onclick="closeMaterial()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- =========================== DASHBOARD =========================== -->
 <div id="dashboard">
   <div class="dash-nav">
@@ -450,7 +528,9 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
     <div class="dash-side">
       <button class="active" data-panel="overview" onclick="switchPanel('overview')">Overview</button>
       <button data-panel="progress" onclick="switchPanel('progress')">Progress</button>
+      <button data-panel="materials" onclick="switchPanel('materials')">Materials</button>
       <button data-panel="sessions" onclick="switchPanel('sessions')">Sessions</button>
+      <button data-panel="payments" onclick="switchPanel('payments')">Payments</button>
     </div>
     <div>
       <div class="dash-panel active" id="panel-overview">
@@ -481,6 +561,10 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
         </div>
       </div>
 
+      <div class="dash-panel" id="panel-materials">
+        <div id="materialsList"></div>
+      </div>
+
       <div class="dash-panel" id="panel-sessions">
         <div class="dash-card">
           <h3>Request a session</h3>
@@ -495,6 +579,10 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
           <h3>Session history</h3>
           <div id="historyList" style="margin-top:8px;"></div>
         </div>
+      </div>
+
+      <div class="dash-panel" id="panel-payments">
+        <div class="dash-card" id="dashPayCard"></div>
       </div>
     </div>
   </div>
@@ -528,15 +616,6 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
       see the hosting instructions in chat). Sign-ups will now
       create real accounts that persist across visits/devices.
    ========================================================= */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  onAuthStateChanged, signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -546,14 +625,49 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const fbAuth = getAuth(fbApp);
-const fbDb = getFirestore(fbApp);
-const fb = {
-  auth: fbAuth, db: fbDb,
-  createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut,
-  doc, setDoc, getDoc, addDoc, collection, getDocs
-};
+// Firebase loads asynchronously and never blocks the rest of the page —
+// if it fails (unfilled config, no network, or the file opened directly
+// instead of via a server) the site itself still renders fully; only
+// sign-up/login are disabled until it connects.
+let fb = null;
+let fbReady = false;
+
+async function loadFirebase(){
+  try{
+    const [{ initializeApp }, authMod, storeMod] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"),
+    ]);
+    const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } = authMod;
+    const { getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs } = storeMod;
+    const fbApp = initializeApp(firebaseConfig);
+    const fbAuth = getAuth(fbApp);
+    const fbDb = getFirestore(fbApp);
+    fb = {
+      auth: fbAuth, db: fbDb,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut,
+      doc, setDoc, getDoc, addDoc, collection, getDocs,
+    };
+    fbReady = true;
+    // restore login automatically on return visits
+    fb.onAuthStateChanged(fb.auth, async (user)=>{
+      if (user && !currentUser){
+        try{
+          const snap = await fb.getDoc(fb.doc(fb.db, "students", user.uid));
+          if (snap.exists()){
+            currentUser = user.uid;
+            currentUserData = snap.data();
+            await enterDashboard();
+          }
+        } catch(e){ /* not signed in with a valid profile yet — ignore */ }
+      }
+    });
+  } catch(err){
+    console.warn("Firebase didn't connect — sign-up/login are unavailable until firebaseConfig is filled in and the page is served over http(s) rather than opened directly as a file.", err);
+  }
+}
+loadFirebase();
 
 /* =========================================================
    SITE CONFIG — edit this block to make the site your own.
@@ -561,6 +675,22 @@ const fb = {
 const SITE = {
   brand: "Vertex Tutoring",
   tutorName: "Aditya Malik",
+  // ---- PAYMENT DETAILS — replace every placeholder below with your real
+  // UPI ID and bank details. If you have your own QR image (e.g. exported
+  // from GPay/PhonePe/your bank app), upload it somewhere reachable
+  // (Firebase Hosting, Imgur, etc.) and paste that URL into qrImageUrl —
+  // otherwise leave qrImageUrl as "" and a QR will be generated
+  // automatically from your UPI ID.
+  payment: {
+    upiId: "yourname@upi",
+    payeeName: "Aditya Malik",
+    qrImageUrl: "",
+    accountHolder: "Aditya Malik",
+    accountNumber: "0000000000000",
+    ifsc: "ABCD0123456",
+    bankName: "Your Bank Name",
+    whatsapp: "917017929599", // country code + number, no + or spaces
+  },
   courses: [
     {id:"us-middle", name:"US Math — Pre-Algebra", tag:"US Curriculum · Grades 6–8", desc:"Ratios, fractions, negative numbers, and early equations — a solid base before Algebra I.", price:700, topics:["Fractions & ratios","Integers","One-step equations","Intro to graphing"]},
     {id:"us-hs", name:"US Math — Algebra I & Geometry", tag:"US Curriculum · Grades 9–10", desc:"Common-Core aligned Algebra I and Geometry, built around your school's syllabus and tests.", price:750, topics:["Linear equations","Quadratics & factoring","Triangle proofs","Area & volume"]},
@@ -571,6 +701,75 @@ const SITE = {
   ]
 };
 
+/* =========================================================
+   STUDY MATERIALS — organized by course id (matching SITE.courses
+   above). Each chapter has a slide deck (heading + bullet points,
+   shown one at a time in the dashboard) and an auto-graded
+   multiple-choice quiz. Only one pilot chapter is filled in below
+   ("Linear Equations" under us-hs) — ask Claude to write more
+   chapters in this same shape any time, for any course.
+
+   Template for a new chapter:
+   {
+     id: "unique-id", title: "Chapter Title", ready: true,
+     slides: [ {heading:"...", bullets:["...","..."]}, ... ],
+     quiz: [ {q:"...", options:["A","B","C","D"], answer:0}, ... ]  // answer = index of correct option
+   }
+   ========================================================= */
+const MATERIALS = {
+  "us-hs": {
+    chapters: [
+      {
+        id: "linear-equations",
+        title: "Linear Equations",
+        ready: true,
+        slides: [
+          {heading:"What is a Linear Equation?", bullets:[
+            "An equation where the variable's highest power is 1",
+            "Written in the form ax + b = c",
+            "Its graph is always a straight line — that's where 'linear' comes from",
+          ]},
+          {heading:"One-Step Equations", bullets:[
+            "Solve by doing the inverse operation to both sides",
+            "x + 5 = 12  →  subtract 5  →  x = 7",
+            "3x = 21  →  divide by 3  →  x = 7",
+          ]},
+          {heading:"Two-Step Equations", bullets:[
+            "Undo addition or subtraction first, then multiplication or division",
+            "2x + 3 = 11  →  2x = 8  →  x = 4",
+            "Always check your answer by substituting it back in",
+          ]},
+          {heading:"Variables on Both Sides", bullets:[
+            "Move every variable term to one side first",
+            "5x + 2 = 2x + 11  →  3x = 9  →  x = 3",
+            "Combine like terms carefully before isolating x",
+          ]},
+          {heading:"Word Problems", bullets:[
+            "Translate the sentence into an equation before solving",
+            "'Five more than twice a number is 17'  →  2x + 5 = 17",
+            "Always define clearly what your variable represents",
+          ]},
+          {heading:"Quick Recap", bullets:[
+            "Keep the equation balanced — whatever you do to one side, do to the other",
+            "Simplify, isolate the variable, then check your answer",
+            "Next chapter: quadratics and factoring",
+          ]},
+        ],
+        quiz: [
+          {q:"Solve: x + 9 = 15", options:["x = 5","x = 6","x = 24","x = −6"], answer:1},
+          {q:"Solve: 4x = 28", options:["x = 6","x = 7","x = 24","x = 32"], answer:1},
+          {q:"Solve: 2x + 3 = 11", options:["x = 3","x = 4","x = 7","x = 14"], answer:1},
+          {q:"Solve: 5x + 2 = 2x + 11", options:["x = 2","x = 3","x = 4","x = 13/7"], answer:1},
+          {q:"Which of these is a linear equation?", options:["x² + 2 = 5","3x + 4 = 10","1/x = 2","x³ − 1 = 0"], answer:1},
+        ],
+      },
+      // more us-hs chapters go here, e.g. "Quadratics & Factoring", "Triangle Proofs"...
+    ],
+  },
+  // other course ids ("us-middle", "uk-ks3", "uk-gcse10", "in-foundation", "in-board10")
+  // can each get a { chapters: [...] } block in this same shape.
+};
+
 document.getElementById("year").textContent = new Date().getFullYear();
 document.getElementById("brandName").textContent = SITE.brand;
 document.getElementById("brandName2").textContent = SITE.brand;
@@ -578,6 +777,7 @@ document.getElementById("tutorName").textContent = SITE.tutorName;
 document.title = SITE.brand + " — 1:1 Math Tutoring";
 
 // ---- hero: single-card "page flip" through math concepts ----
+const PALETTE = ["#E8A33D", "#C1443C", "#3F8361", "#1B2A4A"];
 const CONCEPTS = [
   {label:"Algebra", svg:`<svg viewBox="0 0 60 60"><text x="30" y="30" font-family="JetBrains Mono" font-size="15" font-weight="600" fill="#1B2A4A" text-anchor="middle">x²+2x</text><line x1="10" y1="40" x2="50" y2="40" stroke="#E8A33D" stroke-width="2.5" stroke-linecap="round"/><text x="30" y="52" font-family="JetBrains Mono" font-size="12" fill="#4A5670" text-anchor="middle">= 3</text></svg>`},
   {label:"Geometry", svg:`<svg viewBox="0 0 60 60"><polygon points="10,50 50,50 26,10" fill="none" stroke="#1B2A4A" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 50 A8 8 0 0 1 23.5 45" fill="none" stroke="#E8A33D" stroke-width="2.5"/></svg>`},
@@ -585,7 +785,7 @@ const CONCEPTS = [
   {label:"Calculus", svg:`<svg viewBox="0 0 60 60"><path d="M8 46 C 20 10, 40 10, 52 46 Z" fill="#E9EFF6"/><path d="M8 46 C 20 10, 40 10, 52 46" fill="none" stroke="#1B2A4A" stroke-width="2.5"/><line x1="8" y1="46" x2="52" y2="46" stroke="#C7CEDB" stroke-width="1.5"/></svg>`},
   {label:"Statistics", svg:`<svg viewBox="0 0 60 60"><line x1="6" y1="52" x2="54" y2="52" stroke="#C7CEDB" stroke-width="1.5"/><rect x="10" y="30" width="9" height="22" fill="#1B2A4A"/><rect x="24" y="16" width="9" height="36" fill="#E8A33D"/><rect x="38" y="26" width="9" height="26" fill="#1B2A4A"/></svg>`},
   {label:"Coordinate Geometry", svg:`<svg viewBox="0 0 60 60"><line x1="6" y1="50" x2="54" y2="50" stroke="#C7CEDB" stroke-width="1.5"/><line x1="14" y1="6" x2="14" y2="56" stroke="#C7CEDB" stroke-width="1.5"/><circle cx="28" cy="34" r="3.5" fill="#C1443C"/><circle cx="42" cy="16" r="3.5" fill="#C1443C"/><line x1="28" y1="34" x2="42" y2="16" stroke="#1B2A4A" stroke-width="1.5" stroke-dasharray="3 3"/></svg>`},
-];
+].map((c,i)=>({...c, color: PALETTE[i % PALETTE.length]}));
 const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const flipCard = document.getElementById("flipCard");
 const flipDots = document.getElementById("flipDots");
@@ -598,10 +798,18 @@ CONCEPTS.forEach((_, i)=>{
   flipDots.appendChild(dot);
 });
 
-function cardInnerHTML(c){ return c.svg + `<div class="label">${c.label}</div>`; }
+function cardInnerHTML(c, i){
+  const n = String(i+1).padStart(2,"0");
+  const total = String(CONCEPTS.length).padStart(2,"0");
+  return `
+    <div class="idx-badge">${n} / ${total}</div>
+    <div class="icon-wrap" style="border-color:${c.color}55;background:${c.color}14;">${c.svg}</div>
+    <div class="label"><span class="dot" style="background:${c.color};"></span>${c.label}</div>
+  `;
+}
 
 function paintCard(i){
-  flipCard.innerHTML = cardInnerHTML(CONCEPTS[i]);
+  flipCard.innerHTML = cardInnerHTML(CONCEPTS[i], i);
   [...flipDots.children].forEach((d,di)=>d.classList.toggle("active", di===i));
 }
 paintCard(flipIndex);
@@ -710,6 +918,11 @@ async function handleAuth(evt, mode){
   const password = scope.querySelector("#f_password").value;
   const errEl = scope.querySelector("#f_error");
   errEl.style.display = "none";
+  if (!fbReady){
+    errEl.textContent = "Accounts aren't connected yet — the site owner needs to add their Firebase config (see the comment block near the top of the script).";
+    errEl.style.display = "block";
+    return false;
+  }
   const submitBtn = scope.querySelector('button[type="submit"]');
   const originalLabel = submitBtn.textContent;
   submitBtn.disabled = true;
@@ -818,6 +1031,7 @@ async function enterDashboard(){
   document.getElementById("nextSessionWhen").textContent = relativeDate(3) + " · 5:00 PM · Video call link sent 1hr before";
 
   renderProgress();
+  renderMaterialsPanel();
   await renderSessionsPanel();
   switchPanel("overview");
 }
@@ -908,21 +1122,181 @@ function switchPanel(name){
   document.getElementById("panel-"+name).classList.add("active");
   document.querySelectorAll(".dash-side button").forEach(b=>b.classList.remove("active"));
   document.querySelector(`.dash-side button[data-panel="${name}"]`).classList.add("active");
+  if (name === "payments"){
+    const card = document.getElementById("dashPayCard");
+    if (card) card.innerHTML = payHTML("");
+  }
 }
 
-// ---- restore login automatically on return visits ----
-fb.onAuthStateChanged(fb.auth, async (user)=>{
-  if (user && !currentUser){
-    try{
-      const snap = await fb.getDoc(fb.doc(fb.db, "students", user.uid));
-      if (snap.exists()){
-        currentUser = user.uid;
-        currentUserData = snap.data();
-        await enterDashboard();
-      }
-    } catch(e){ /* not signed in with a valid profile yet — ignore */ }
+// ---- study materials: chapter list, slide viewer, auto-graded quiz ----
+let matState = {courseId:null, chapterId:null, slideIdx:0, tab:"slides", answers:{}, submitted:false};
+
+function renderMaterialsPanel(){
+  const wrap = document.getElementById("materialsList");
+  const u = currentUserData;
+  wrap.innerHTML = "";
+  if (!u.courses.length){
+    wrap.innerHTML = `<div class="dash-card"><p style="font-size:14px;">Enroll in a course to see its study materials here.</p></div>`;
+    return;
   }
-});
+  u.courses.forEach(cid=>{
+    const c = SITE.courses.find(x=>x.id===cid);
+    const chapters = (MATERIALS[cid] && MATERIALS[cid].chapters) || [];
+    const section = document.createElement("div");
+    section.className = "dash-card";
+    section.innerHTML = `<h3>${c ? c.name : cid}</h3>` + (
+      chapters.length
+        ? chapters.map(ch => `
+            <div class="chapter-row" data-locked="${ch.ready?0:1}" ${ch.ready ? `onclick="openMaterial('${cid}','${ch.id}')"` : ""}>
+              <span class="chapter-title">${ch.title}</span>
+              <span class="chapter-status ${ch.ready?'ready':'soon'}">${ch.ready?'Ready':'Coming soon'}</span>
+            </div>`).join("")
+        : `<p style="font-size:14px;margin-top:12px;">Materials for this course are being added — check back soon.</p>`
+    );
+    wrap.appendChild(section);
+  });
+}
+
+function openMaterial(courseId, chapterId){
+  matState = {courseId, chapterId, slideIdx:0, tab:"slides", answers:{}, submitted:false};
+  document.getElementById("materialModal").style.display = "flex";
+  renderMaterialModal();
+}
+function closeMaterial(){ document.getElementById("materialModal").style.display = "none"; }
+
+function currentChapter(){
+  return MATERIALS[matState.courseId].chapters.find(c=>c.id===matState.chapterId);
+}
+
+function renderMaterialModal(){
+  const chapter = currentChapter();
+  const body = document.getElementById("materialModalBody");
+  body.innerHTML = `
+    <h3 style="font-family:var(--serif);font-size:21px;font-weight:500;">${chapter.title}</h3>
+    <div class="tabs" style="margin-top:14px;">
+      <div class="tab ${matState.tab==='slides'?'active':''}" onclick="setMatTab('slides')">Slides</div>
+      <div class="tab ${matState.tab==='quiz'?'active':''}" onclick="setMatTab('quiz')">Quiz</div>
+    </div>
+    <div id="matContent" style="margin-top:18px;"></div>
+  `;
+  renderMatContent();
+}
+function setMatTab(tab){ matState.tab = tab; renderMaterialModal(); }
+
+function renderMatContent(){
+  const chapter = currentChapter();
+  const el = document.getElementById("matContent");
+  if (matState.tab === "slides"){
+    const s = chapter.slides[matState.slideIdx];
+    el.innerHTML = `
+      <div class="slide-view">
+        <h4>${s.heading}</h4>
+        <ul>${s.bullets.map(b=>`<li>${b}</li>`).join("")}</ul>
+      </div>
+      <div class="slide-nav">
+        <button class="btn btn-ghost btn-sm" onclick="matSlide(-1)" ${matState.slideIdx===0?'disabled':''}>← Prev</button>
+        <div class="slide-dots">${chapter.slides.map((_,i)=>`<span class="${i===matState.slideIdx?'active':''}"></span>`).join("")}</div>
+        <button class="btn btn-ghost btn-sm" onclick="matSlide(1)" ${matState.slideIdx===chapter.slides.length-1?'disabled':''}>Next →</button>
+      </div>
+    `;
+  } else {
+    if (!matState.submitted){
+      el.innerHTML = chapter.quiz.map((q,qi)=>`
+        <div class="quiz-q">
+          <div class="qtext">${qi+1}. ${q.q}</div>
+          ${q.options.map((opt,oi)=>`
+            <label class="quiz-opt">
+              <input type="radio" name="mq${qi}" value="${oi}" onchange="setMatAnswer(${qi},${oi})">
+              ${opt}
+            </label>`).join("")}
+        </div>`).join("") + `<button class="btn btn-primary btn-sm" onclick="submitQuiz()">Submit quiz</button>`;
+    } else {
+      let score = 0;
+      el.innerHTML = chapter.quiz.map((q,qi)=>{
+        const chosen = matState.answers[qi];
+        if (chosen === q.answer) score++;
+        return `
+          <div class="quiz-q">
+            <div class="qtext">${qi+1}. ${q.q}</div>
+            ${q.options.map((opt,oi)=>{
+              let cls = "quiz-opt";
+              if (oi===q.answer) cls += " correct";
+              else if (oi===chosen) cls += " incorrect";
+              return `<div class="${cls}">${opt}</div>`;
+            }).join("")}
+          </div>`;
+      }).join("") + `<div class="quiz-result">Score: ${score} / ${chapter.quiz.length}</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="retakeQuiz()">Retake quiz</button>`;
+    }
+  }
+}
+function matSlide(delta){
+  const chapter = currentChapter();
+  matState.slideIdx = Math.max(0, Math.min(chapter.slides.length-1, matState.slideIdx+delta));
+  renderMatContent();
+}
+function setMatAnswer(qi, oi){ matState.answers[qi] = oi; }
+function submitQuiz(){
+  matState.submitted = true;
+  const chapter = currentChapter();
+  renderMatContent();
+  if (currentUser && fbReady){
+    const score = chapter.quiz.reduce((acc,q,qi)=>acc+(matState.answers[qi]===q.answer?1:0),0);
+    fb.addDoc(fb.collection(fb.db, "students", currentUser, "quizResults"), {
+      course: matState.courseId, chapter: matState.chapterId,
+      score, total: chapter.quiz.length, createdAt: new Date().toISOString(),
+    }).catch(()=>{});
+  }
+}
+function retakeQuiz(){
+  matState.submitted = false;
+  matState.answers = {};
+  renderMatContent();
+}
+
+// ---- payments: UPI / QR / bank details, confirmed manually via WhatsApp ----
+function payHTML(planLabel){
+  const p = SITE.payment;
+  const upiUri = `upi://pay?pa=${encodeURIComponent(p.upiId)}&pn=${encodeURIComponent(p.payeeName)}&cu=INR`;
+  const qrSrc = (p.qrImageUrl && p.qrImageUrl.trim())
+    ? p.qrImageUrl
+    : `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUri)}`;
+  const safePlan = (planLabel||"").replace(/'/g, "\\'");
+  return `
+    <h3 style="font-family:var(--serif);font-size:20px;font-weight:500;margin-bottom:4px;">Pay via UPI or bank transfer</h3>
+    <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:18px;">${planLabel ? `For: <strong style="color:var(--ink);">${planLabel}</strong>` : "Scan the QR, or use the details below."}</p>
+    <div style="display:flex;justify-content:center;margin-bottom:18px;">
+      <img src="${qrSrc}" alt="UPI QR code" style="width:180px;height:180px;border-radius:12px;border:1px solid var(--border);object-fit:contain;background:#fff;">
+    </div>
+    <div class="pay-row"><span>UPI ID</span><b>${p.upiId}</b></div>
+    <div class="pay-row"><span>Account name</span><b>${p.accountHolder}</b></div>
+    <div class="pay-row"><span>Account no.</span><b>${p.accountNumber}</b></div>
+    <div class="pay-row"><span>IFSC</span><b>${p.ifsc}</b></div>
+    <div class="pay-row"><span>Bank</span><b>${p.bankName}</b></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:18px;justify-content:center;" onclick="notifyPayment('${safePlan}')">I've paid — notify on WhatsApp</button>
+    <div class="form-note">Payments are verified manually — your tutor will confirm and update your account shortly after you notify them.</div>
+  `;
+}
+function openPay(planLabel){
+  document.getElementById("payModalBody").innerHTML = payHTML(planLabel || "");
+  document.getElementById("payModal").style.display = "flex";
+}
+function closePay(){ document.getElementById("payModal").style.display = "none"; }
+
+async function notifyPayment(planLabel){
+  if (currentUser && fbReady){
+    try{
+      await fb.addDoc(fb.collection(fb.db, "students", currentUser, "payments"), {
+        plan: planLabel || "Not specified",
+        status: "pending_verification",
+        createdAt: new Date().toISOString(),
+      });
+    } catch(e){ /* non-fatal — WhatsApp notification still goes through */ }
+  }
+  const waText = encodeURIComponent(`Hi ${SITE.tutorName}, I've completed the payment${planLabel ? " for " + planLabel : ""}. Sharing the screenshot here.`);
+  window.open(`https://wa.me/${SITE.payment.whatsapp}?text=${waText}`, "_blank");
+  toast("Opening WhatsApp to confirm your payment…");
+}
 
 // ---- expose functions referenced by inline HTML handlers (needed since this is a module script) ----
 window.openAuth = openAuth;
@@ -932,6 +1306,16 @@ window.handleAuth = handleAuth;
 window.logout = logout;
 window.switchPanel = switchPanel;
 window.requestSession = requestSession;
+window.openPay = openPay;
+window.closePay = closePay;
+window.notifyPayment = notifyPayment;
+window.openMaterial = openMaterial;
+window.closeMaterial = closeMaterial;
+window.setMatTab = setMatTab;
+window.matSlide = matSlide;
+window.setMatAnswer = setMatAnswer;
+window.submitQuiz = submitQuiz;
+window.retakeQuiz = retakeQuiz;
 </script>
 </body>
 </html>
