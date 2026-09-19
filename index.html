@@ -7,14 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* =========================================================
-   CONFIG NOTE: search JS "SITE" object near bottom to edit
-   name, bio, courses, pricing, and contact details.
-   This is a front-end only demo: accounts live in memory and
-   reset on reload. See the note in the sign-up panel for how
-   to make it permanent.
-   ========================================================= */
-
 :root{
   --ink:#1B2A4A;
   --ink-soft:#4A5670;
@@ -590,106 +582,22 @@ footer{border-top:1px solid var(--border);padding:40px 0;}
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-/* =========================================================
-   FIREBASE SETUP — do this once, then this site has real,
-   permanent student accounts (free tier is plenty for a
-   personal tutoring practice).
+<script>
+// Live Google Apps Script backend Web App URL
+const API_URL = "https://script.google.com/macros/s/AKfycbyUhfFbHLvfTzYvz2ZFno-Fzju2uIooBnHiLmSYxfyUeURq1MRHRXfgCZllZj6fN7eL2Q/exec";
 
-   1. Go to https://console.firebase.google.com → "Add project"
-      (free) → name it anything, e.g. "numerly-tutoring".
-   2. In the left sidebar: Build > Authentication > Get started
-      > Sign-in method tab > enable "Email/Password".
-   3. In the left sidebar: Build > Firestore Database > Create
-      database > choose a region close to your students >
-      start in "production mode".
-   4. Click the gear icon (top left) > Project settings >
-      scroll to "Your apps" > click the </> (web) icon >
-      register the app (nickname anything) > it will show you
-      a firebaseConfig object — copy it and paste it below,
-      replacing the placeholder values.
-   5. Still in Firestore: go to the "Rules" tab and paste the
-      rules given in the chat message that shipped this file,
-      then click Publish. This makes sure each student can
-      only read/write their own data.
-   6. Save this file and open it in a browser (or deploy it —
-      see the hosting instructions in chat). Sign-ups will now
-      create real accounts that persist across visits/devices.
-   ========================================================= */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-
-// Firebase loads asynchronously and never blocks the rest of the page —
-// if it fails (unfilled config, no network, or the file opened directly
-// instead of via a server) the site itself still renders fully; only
-// sign-up/login are disabled until it connects.
-let fb = null;
-let fbReady = false;
-
-async function loadFirebase(){
-  try{
-    const [{ initializeApp }, authMod, storeMod] = await Promise.all([
-      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"),
-    ]);
-    const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } = authMod;
-    const { getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs } = storeMod;
-    const fbApp = initializeApp(firebaseConfig);
-    const fbAuth = getAuth(fbApp);
-    const fbDb = getFirestore(fbApp);
-    fb = {
-      auth: fbAuth, db: fbDb,
-      createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut,
-      doc, setDoc, getDoc, addDoc, collection, getDocs,
-    };
-    fbReady = true;
-    // restore login automatically on return visits
-    fb.onAuthStateChanged(fb.auth, async (user)=>{
-      if (user && !currentUser){
-        try{
-          const snap = await fb.getDoc(fb.doc(fb.db, "students", user.uid));
-          if (snap.exists()){
-            currentUser = user.uid;
-            currentUserData = snap.data();
-            await enterDashboard();
-          }
-        } catch(e){ /* not signed in with a valid profile yet — ignore */ }
-      }
-    });
-  } catch(err){
-    console.warn("Firebase didn't connect — sign-up/login are unavailable until firebaseConfig is filled in and the page is served over http(s) rather than opened directly as a file.", err);
-  }
-}
-loadFirebase();
-
-/* =========================================================
-   SITE CONFIG — edit this block to make the site your own.
-   ========================================================= */
 const SITE = {
   brand: "Vertex Tutoring",
   tutorName: "Aditya Malik",
-  // ---- PAYMENT DETAILS — replace every placeholder below with your real
-  // UPI ID and bank details. If you have your own QR image (e.g. exported
-  // from GPay/PhonePe/your bank app), upload it somewhere reachable
-  // (Firebase Hosting, Imgur, etc.) and paste that URL into qrImageUrl —
-  // otherwise leave qrImageUrl as "" and a QR will be generated
-  // automatically from your UPI ID.
   payment: {
-    upiId: "yourname@upi",
+    upiId: "adityamalik308@okhdfcbank",
     payeeName: "Aditya Malik",
     qrImageUrl: "",
     accountHolder: "Aditya Malik",
     accountNumber: "0000000000000",
     ifsc: "ABCD0123456",
     bankName: "Your Bank Name",
-    whatsapp: "917017929599", // country code + number, no + or spaces
+    whatsapp: "917017929599",
   },
   courses: [
     {id:"us-middle", name:"US Math — Pre-Algebra", tag:"US Curriculum · Grades 6–8", desc:"Ratios, fractions, negative numbers, and early equations — a solid base before Algebra I.", price:700, topics:["Fractions & ratios","Integers","One-step equations","Intro to graphing"]},
@@ -697,25 +605,10 @@ const SITE = {
     {id:"uk-ks3", name:"UK Maths — Key Stage 3", tag:"UK Curriculum · Years 7–9", desc:"National Curriculum KS3 maths — number, algebra, and geometry, taught the way your school teaches it.", price:700, topics:["Number & ratio","Algebraic expressions","Angles & shape","Statistics basics"]},
     {id:"uk-gcse10", name:"UK GCSE Maths — Year 10", tag:"UK Curriculum · Year 10", desc:"Foundation or Higher tier GCSE Maths, building the groundwork ahead of Year 11 exams.", price:800, topics:["Algebraic manipulation","Trigonometry basics","Graphs & sequences","Exam technique"]},
     {id:"in-foundation", name:"Indian Curriculum — Classes 6–8", tag:"CBSE / ICSE · Classes 6–8", desc:"Foundational math aligned to CBSE and ICSE syllabi — building confidence before board years.", price:650, topics:["Fractions & integers","Algebra basics","Mensuration","Data handling"]},
-    {id:"in-board10", name:"Indian Curriculum — Class 9 & 10", tag:"CBSE / ICSE · Classes 9–10", desc:"CBSE/ICSE Class 9–10 math with focused board-exam preparation for Class 10.", price:750, topics:["Polynomials","Coordinate geometry","Trigonometry","Board exam practice"]},
+    {id:"in-board10", name:"Indian Curriculum — Class 9 & 10", tag:"CBSE / ICSE · Classes 9–10", desc:"CBSE/ICSE Class 9–10 math with focused board-exam practice for Class 10.", price:750, topics:["Polynomials","Coordinate geometry","Trigonometry","Board exam practice"]},
   ]
 };
 
-/* =========================================================
-   STUDY MATERIALS — organized by course id (matching SITE.courses
-   above). Each chapter has a slide deck (heading + bullet points,
-   shown one at a time in the dashboard) and an auto-graded
-   multiple-choice quiz. Only one pilot chapter is filled in below
-   ("Linear Equations" under us-hs) — ask Claude to write more
-   chapters in this same shape any time, for any course.
-
-   Template for a new chapter:
-   {
-     id: "unique-id", title: "Chapter Title", ready: true,
-     slides: [ {heading:"...", bullets:["...","..."]}, ... ],
-     quiz: [ {q:"...", options:["A","B","C","D"], answer:0}, ... ]  // answer = index of correct option
-   }
-   ========================================================= */
 const MATERIALS = {
   "us-hs": {
     chapters: [
@@ -763,11 +656,8 @@ const MATERIALS = {
           {q:"Which of these is a linear equation?", options:["x² + 2 = 5","3x + 4 = 10","1/x = 2","x³ − 1 = 0"], answer:1},
         ],
       },
-      // more us-hs chapters go here, e.g. "Quadratics & Factoring", "Triangle Proofs"...
     ],
-  },
-  // other course ids ("us-middle", "uk-ks3", "uk-gcse10", "in-foundation", "in-board10")
-  // can each get a { chapters: [...] } block in this same shape.
+  }
 };
 
 document.getElementById("year").textContent = new Date().getFullYear();
@@ -776,7 +666,7 @@ document.getElementById("brandName2").textContent = SITE.brand;
 document.getElementById("tutorName").textContent = SITE.tutorName;
 document.title = SITE.brand + " — 1:1 Math Tutoring";
 
-// ---- hero: single-card "page flip" through math concepts ----
+// Hero Concept Flip Card
 const PALETTE = ["#E8A33D", "#C1443C", "#3F8361", "#1B2A4A"];
 const CONCEPTS = [
   {label:"Algebra", svg:`<svg viewBox="0 0 60 60"><text x="30" y="30" font-family="JetBrains Mono" font-size="15" font-weight="600" fill="#1B2A4A" text-anchor="middle">x²+2x</text><line x1="10" y1="40" x2="50" y2="40" stroke="#E8A33D" stroke-width="2.5" stroke-linecap="round"/><text x="30" y="52" font-family="JetBrains Mono" font-size="12" fill="#4A5670" text-anchor="middle">= 3</text></svg>`},
@@ -786,7 +676,7 @@ const CONCEPTS = [
   {label:"Statistics", svg:`<svg viewBox="0 0 60 60"><line x1="6" y1="52" x2="54" y2="52" stroke="#C7CEDB" stroke-width="1.5"/><rect x="10" y="30" width="9" height="22" fill="#1B2A4A"/><rect x="24" y="16" width="9" height="36" fill="#E8A33D"/><rect x="38" y="26" width="9" height="26" fill="#1B2A4A"/></svg>`},
   {label:"Coordinate Geometry", svg:`<svg viewBox="0 0 60 60"><line x1="6" y1="50" x2="54" y2="50" stroke="#C7CEDB" stroke-width="1.5"/><line x1="14" y1="6" x2="14" y2="56" stroke="#C7CEDB" stroke-width="1.5"/><circle cx="28" cy="34" r="3.5" fill="#C1443C"/><circle cx="42" cy="16" r="3.5" fill="#C1443C"/><line x1="28" y1="34" x2="42" y2="16" stroke="#1B2A4A" stroke-width="1.5" stroke-dasharray="3 3"/></svg>`},
 ].map((c,i)=>({...c, color: PALETTE[i % PALETTE.length]}));
-const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 const flipCard = document.getElementById("flipCard");
 const flipDots = document.getElementById("flipDots");
 let flipIndex = 0;
@@ -798,46 +688,28 @@ CONCEPTS.forEach((_, i)=>{
   flipDots.appendChild(dot);
 });
 
-function cardInnerHTML(c, i){
+function paintCard(i){
+  const c = CONCEPTS[i];
   const n = String(i+1).padStart(2,"0");
   const total = String(CONCEPTS.length).padStart(2,"0");
-  return `
+  flipCard.innerHTML = `
     <div class="idx-badge">${n} / ${total}</div>
     <div class="icon-wrap" style="border-color:${c.color}55;background:${c.color}14;">${c.svg}</div>
     <div class="label"><span class="dot" style="background:${c.color};"></span>${c.label}</div>
   `;
-}
-
-function paintCard(i){
-  flipCard.innerHTML = cardInnerHTML(CONCEPTS[i], i);
   [...flipDots.children].forEach((d,di)=>d.classList.toggle("active", di===i));
 }
 paintCard(flipIndex);
 
-function flipToNext(){
-  flipIndex = (flipIndex+1) % CONCEPTS.length;
-  if (reduceMotion){ paintCard(flipIndex); return; }
-  flipCard.style.transition = "transform .32s cubic-bezier(.4,.1,.3,1), opacity .32s ease";
-  flipCard.style.transform = "rotateY(-90deg)";
-  flipCard.style.opacity = "0.35";
-  setTimeout(()=>{
+function startFlipping(){
+  flipTimer = setInterval(()=>{
+    flipIndex = (flipIndex+1) % CONCEPTS.length;
     paintCard(flipIndex);
-    flipCard.style.transition = "none";
-    flipCard.style.transform = "rotateY(90deg)";
-    void flipCard.offsetWidth; // force reflow so the next transition runs
-    flipCard.style.transition = "transform .32s cubic-bezier(.4,.1,.3,1), opacity .32s ease";
-    flipCard.style.transform = "rotateY(0deg)";
-    flipCard.style.opacity = "1";
-  }, 320);
+  }, 2600);
 }
-function startFlipping(){ flipTimer = setInterval(flipToNext, 2600); }
-function stopFlipping(){ clearInterval(flipTimer); }
 startFlipping();
-document.querySelector(".hero-art").addEventListener("mouseenter", stopFlipping);
-document.querySelector(".hero-art").addEventListener("mouseleave", startFlipping);
 
-
-// ---- render course grid ----
+// Render Course Cards
 const grid = document.getElementById("courseGrid");
 SITE.courses.forEach(c=>{
   const el = document.createElement("div");
@@ -853,9 +725,9 @@ SITE.courses.forEach(c=>{
   grid.appendChild(el);
 });
 
-// ---- live session state (backed by Firebase Auth + Firestore) ----
-let currentUser = null;      // Firebase Auth uid
-let currentUserData = null;  // cached Firestore profile doc for currentUser
+// App State
+let currentUser = null;
+let currentUserData = null;
 
 function toast(msg){
   const t = document.getElementById("toast");
@@ -864,7 +736,23 @@ function toast(msg){
   setTimeout(()=>t.classList.remove("show"), 2600);
 }
 
-// ---- auth form rendering (shared by modal + inline band) ----
+// API helper: text/plain prevents CORS preflight issues with Google Apps Script
+async function apiCall(payload){
+  if (!API_URL || API_URL.includes("PASTE_YOUR")) {
+    throw new Error("Google Apps Script URL has not been configured in the script.");
+  }
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  });
+  return await response.json();
+}
+
+// Auth Rendering
+let authMode = "signup";
+let preselectCourse = null;
+
 function authFormHTML(mode){
   const courseOptions = SITE.courses.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
   return `
@@ -882,24 +770,16 @@ function authFormHTML(mode){
       <div class="field"><label>Password</label><input required type="password" id="f_password" placeholder="••••••••"></div>
       <div class="form-error" id="f_error"></div>
       <button class="btn btn-primary" type="submit" style="width:100%;margin-top:4px;">${mode==='signup'?'Create account & enroll':'Log in'}</button>
-      <div class="form-note">Your account and progress are saved securely and will be there next time you log in, on any device.</div>
+      <div class="form-note">Your account data is saved directly in your tutor's system.</div>
     </form>`;
 }
-let authMode = "signup";
-let preselectCourse = null;
 
 function renderAuth(mode){
   authMode = mode;
-  const html = authFormHTML(mode);
-  document.getElementById("modalAuth").innerHTML = html;
+  document.getElementById("modalAuth").innerHTML = authFormHTML(mode);
   document.getElementById("inlineAuth").innerHTML = authFormHTML(mode);
   if (mode==='signup' && preselectCourse){
-    const sels = document.querySelectorAll("#f_course");
-    sels.forEach(s=>{ if(s) s.value = preselectCourse; });
-    const modalSel = document.querySelector("#modalAuth #f_course");
-    if(modalSel) modalSel.value = preselectCourse;
-    const inlineSel = document.querySelector("#inlineAuth #f_course");
-    if(inlineSel) inlineSel.value = preselectCourse;
+    document.querySelectorAll("#f_course").forEach(s=>{ s.value = preselectCourse; });
   }
 }
 renderAuth("signup");
@@ -918,51 +798,34 @@ async function handleAuth(evt, mode){
   const password = scope.querySelector("#f_password").value;
   const errEl = scope.querySelector("#f_error");
   errEl.style.display = "none";
-  if (!fbReady){
-    errEl.textContent = "Accounts aren't connected yet — the site owner needs to add their Firebase config (see the comment block near the top of the script).";
-    errEl.style.display = "block";
-    return false;
-  }
+  
   const submitBtn = scope.querySelector('button[type="submit"]');
   const originalLabel = submitBtn.textContent;
   submitBtn.disabled = true;
   submitBtn.textContent = "Please wait…";
 
-  try{
+  try {
+    let payload = { action: mode, email, password };
     if (mode === "signup"){
-      const name = scope.querySelector("#f_name").value.trim();
-      const grade = scope.querySelector("#f_grade").value.trim();
-      const course = scope.querySelector("#f_course").value;
-      const cred = await fb.createUserWithEmailAndPassword(fb.auth, email, password);
-      const uid = cred.user.uid;
-      const profile = {
-        name, email, grade,
-        courses: [course],
-        progress: { [course]: buildMockProgress(course) },
-        createdAt: new Date().toISOString(),
-      };
-      await fb.setDoc(fb.doc(fb.db, "students", uid), profile);
-      await fb.addDoc(fb.collection(fb.db, "students", uid, "sessionHistory"), {
-        course, date: relativeDate(-6),
-        note: "Kickoff session — assessed current level and set goals.",
-        createdAt: new Date().toISOString(),
-      });
-      currentUser = uid;
-      currentUserData = profile;
-      toast("Account created — welcome to " + SITE.brand + "!");
-    } else {
-      const cred = await fb.signInWithEmailAndPassword(fb.auth, email, password);
-      const uid = cred.user.uid;
-      const snap = await fb.getDoc(fb.doc(fb.db, "students", uid));
-      if (!snap.exists()) throw {code:"custom/no-profile"};
-      currentUser = uid;
-      currentUserData = snap.data();
-      toast("Welcome back, " + currentUserData.name.split(" ")[0] + "!");
+      payload.name = scope.querySelector("#f_name").value.trim();
+      payload.grade = scope.querySelector("#f_grade").value.trim();
+      payload.course = scope.querySelector("#f_course").value;
     }
+    
+    const result = await apiCall(payload);
+    if (!result.success){
+      throw new Error(result.message || "Failed to process request.");
+    }
+
+    currentUser = result.user.id;
+    currentUserData = result.user;
+    localStorage.setItem("vertex_student", JSON.stringify(currentUserData));
+    
+    toast(mode === "signup" ? `Welcome to ${SITE.brand}!` : `Welcome back, ${currentUserData.name.split(" ")[0]}!`);
     closeAuth();
-    await enterDashboard();
+    enterDashboard();
   } catch(err){
-    errEl.textContent = friendlyAuthError(err);
+    errEl.textContent = err.message || "Connection error. Please try again.";
     errEl.style.display = "block";
   } finally {
     submitBtn.disabled = false;
@@ -971,34 +834,8 @@ async function handleAuth(evt, mode){
   return false;
 }
 
-function friendlyAuthError(err){
-  const map = {
-    "auth/email-already-in-use": "An account with this email already exists — try logging in instead.",
-    "auth/invalid-email": "That doesn't look like a valid email address.",
-    "auth/weak-password": "Password should be at least 6 characters.",
-    "auth/user-not-found": "No account found with that email — sign up first.",
-    "auth/wrong-password": "Incorrect password. Try again.",
-    "auth/invalid-credential": "Incorrect email or password.",
-    "auth/network-request-failed": "Network error — check your connection and try again.",
-    "custom/no-profile": "Account exists but no profile was found — contact your tutor.",
-  };
-  return map[err && err.code] || "Something went wrong. If you're the site owner: check that firebaseConfig near the top of the script has been filled in with real values from your Firebase project.";
-}
-
-function buildMockProgress(courseId){
-  const course = SITE.courses.find(c=>c.id===courseId);
-  const pct = 15 + Math.floor(Math.random()*20);
-  const doneCount = Math.max(1, Math.round((pct/100)*course.topics.length));
-  return { pct, topics: course.topics.map((t,i)=>({name:t, done:i<doneCount})) };
-}
-function relativeDate(offsetDays){
-  const d = new Date();
-  d.setDate(d.getDate()+offsetDays);
-  return d.toISOString().split("T")[0];
-}
-
-async function logout(){
-  await fb.signOut(fb.auth);
+function logout(){
+  localStorage.removeItem("vertex_student");
   currentUser = null;
   currentUserData = null;
   document.getElementById("dashboard").classList.remove("active");
@@ -1006,33 +843,30 @@ async function logout(){
   window.scrollTo(0,0);
 }
 
-async function enterDashboard(){
+function enterDashboard(){
   const u = currentUserData;
   document.getElementById("site").classList.add("hidden");
   document.getElementById("dashboard").classList.add("active");
   document.getElementById("dashName").textContent = u.name.split(" ")[0];
 
-  // overview courses
   const oc = document.getElementById("overviewCourses");
   oc.innerHTML = "";
-  u.courses.forEach(cid=>{
+  (u.courses || []).forEach(cid=>{
     const c = SITE.courses.find(x=>x.id===cid);
     if(!c) return;
     const chip = document.createElement("span");
-    chip.className = "topic-list-chip";
     chip.style.cssText = "background:var(--paper);border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-size:13.5px;font-family:var(--mono);";
     chip.textContent = c.name;
     oc.appendChild(chip);
   });
 
-  // next session (mock: 3 days out for first course — replace manually per student in Firestore once scheduled)
   const firstCourse = SITE.courses.find(c=>c.id===u.courses[0]);
   document.getElementById("nextSessionCourse").textContent = (firstCourse ? firstCourse.name : "Math") + " — 1:1 session";
-  document.getElementById("nextSessionWhen").textContent = relativeDate(3) + " · 5:00 PM · Video call link sent 1hr before";
+  document.getElementById("nextSessionWhen").textContent = "Check your session tab below or your email for confirmation.";
 
   renderProgress();
   renderMaterialsPanel();
-  await renderSessionsPanel();
+  renderSessionsPanel();
   switchPanel("overview");
 }
 
@@ -1040,15 +874,16 @@ function renderProgress(){
   const u = currentUserData;
   const wrap = document.getElementById("progressList");
   wrap.innerHTML = "";
-  u.courses.forEach(cid=>{
+  (u.courses || []).forEach(cid=>{
     const c = SITE.courses.find(x=>x.id===cid);
-    const p = u.progress[cid];
+    if (!c) return;
+    const pct = 25;
     const row = document.createElement("div");
     row.className = "progress-row";
     row.innerHTML = `
-      <div class="top"><span>${c.name}</span><span class="pct">${p.pct}%</span></div>
-      <div class="bar"><div style="width:${p.pct}%"></div></div>
-      <ul class="topic-list">${p.topics.map(t=>`<li class="${t.done?'done':''}">${t.done?'✓ ':''}${t.name}</li>`).join("")}</ul>
+      <div class="top"><span>${c.name}</span><span class="pct">${pct}%</span></div>
+      <div class="bar"><div style="width:${pct}%"></div></div>
+      <ul class="topic-list">${c.topics.map((t,i)=>`<li class="${i===0?'done':''}">${i===0?'✓ ':''}${t}</li>`).join("")}</ul>
     `;
     wrap.appendChild(row);
   });
@@ -1057,42 +892,37 @@ function renderProgress(){
 async function renderSessionsPanel(){
   const u = currentUserData;
   const sel = document.getElementById("reqCourse");
-  sel.innerHTML = u.courses.map(cid=>{
+  sel.innerHTML = (u.courses || []).map(cid=>{
     const c = SITE.courses.find(x=>x.id===cid);
     return c ? `<option value="${cid}">${c.name}</option>` : "";
   }).join("");
 
   const hist = document.getElementById("historyList");
-  hist.innerHTML = `<p style="font-size:14px;">Loading sessions…</p>`;
+  hist.innerHTML = `<p style="font-size:14px;">Loading sessions from database…</p>`;
 
-  let pending = [], past = [];
-  try{
-    const reqSnap = await fb.getDocs(fb.collection(fb.db, "students", currentUser, "sessionRequests"));
-    reqSnap.forEach(d=>pending.push(d.data()));
-    const histSnap = await fb.getDocs(fb.collection(fb.db, "students", currentUser, "sessionHistory"));
-    histSnap.forEach(d=>past.push(d.data()));
+  try {
+    const res = await apiCall({ action: "getSessions", studentId: currentUser });
+    if (!res.sessions || res.sessions.length === 0){
+      hist.innerHTML = `<p style="font-size:14px;">No session requests yet. Request your next slot above.</p>`;
+      return;
+    }
+    hist.innerHTML = "";
+    res.sessions.forEach(s=>{
+      const c = SITE.courses.find(x=>x.id===s.course);
+      const row = document.createElement("div");
+      row.className = "history-item";
+      row.innerHTML = `
+        <div>
+          <div style="font-weight:500;">${c?c.name:s.course}${s.note?' — '+s.note:''}</div>
+          <span class="pending-tag">${s.status || 'Pending'}</span>
+        </div>
+        <div class="date">${s.date}</div>
+      `;
+      hist.appendChild(row);
+    });
   } catch(e){
-    hist.innerHTML = `<p style="font-size:14px;">Couldn't load session history right now.</p>`;
-    return;
+    hist.innerHTML = `<p style="font-size:14px;">Could not load session history.</p>`;
   }
-  pending.sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
-  past.sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
-
-  hist.innerHTML = (pending.length + past.length) ? "" : `<p style="font-size:14px;">No sessions yet — request one above.</p>`;
-  pending.forEach(r=>{
-    const c = SITE.courses.find(x=>x.id===r.course);
-    const row = document.createElement("div");
-    row.className = "history-item";
-    row.innerHTML = `<div><div style="font-weight:500;">${c?c.name:r.course}${r.note?' — '+r.note:''}</div><span class="pending-tag">Pending confirmation</span></div><div class="date">${r.date}</div>`;
-    hist.appendChild(row);
-  });
-  past.forEach(s=>{
-    const c = SITE.courses.find(x=>x.id===s.course);
-    const row = document.createElement("div");
-    row.className = "history-item";
-    row.innerHTML = `<div><div style="font-weight:500;">${c?c.name:s.course}</div><div style="font-size:13.5px;margin-top:2px;">${s.note}</div></div><div class="date">${s.date}</div>`;
-    hist.appendChild(row);
-  });
 }
 
 async function requestSession(evt){
@@ -1102,15 +932,22 @@ async function requestSession(evt){
   const note = document.getElementById("reqNote").value;
   const btn = evt.target.querySelector('button[type="submit"]');
   btn.disabled = true;
-  try{
-    await fb.addDoc(fb.collection(fb.db, "students", currentUser, "sessionRequests"), {
-      course, date, note, status: "pending", createdAt: new Date().toISOString(),
+
+  try {
+    const res = await apiCall({
+      action: "requestSession",
+      studentId: currentUser,
+      course, date, note
     });
-    toast("Session request sent — you'll get a confirmation by email.");
-    evt.target.reset();
-    await renderSessionsPanel();
+    if (res.success){
+      toast("Session request sent to tutor!");
+      evt.target.reset();
+      renderSessionsPanel();
+    } else {
+      toast("Error submitting request.");
+    }
   } catch(e){
-    toast("Couldn't send that request — please try again.");
+    toast("Network error. Please try again.");
   } finally {
     btn.disabled = false;
   }
@@ -1128,18 +965,14 @@ function switchPanel(name){
   }
 }
 
-// ---- study materials: chapter list, slide viewer, auto-graded quiz ----
+// Materials & Quiz
 let matState = {courseId:null, chapterId:null, slideIdx:0, tab:"slides", answers:{}, submitted:false};
 
 function renderMaterialsPanel(){
   const wrap = document.getElementById("materialsList");
   const u = currentUserData;
   wrap.innerHTML = "";
-  if (!u.courses.length){
-    wrap.innerHTML = `<div class="dash-card"><p style="font-size:14px;">Enroll in a course to see its study materials here.</p></div>`;
-    return;
-  }
-  u.courses.forEach(cid=>{
+  (u.courses || []).forEach(cid=>{
     const c = SITE.courses.find(x=>x.id===cid);
     const chapters = (MATERIALS[cid] && MATERIALS[cid].chapters) || [];
     const section = document.createElement("div");
@@ -1236,15 +1069,19 @@ function matSlide(delta){
   renderMatContent();
 }
 function setMatAnswer(qi, oi){ matState.answers[qi] = oi; }
-function submitQuiz(){
+
+async function submitQuiz(){
   matState.submitted = true;
   const chapter = currentChapter();
   renderMatContent();
-  if (currentUser && fbReady){
+  if (currentUser){
     const score = chapter.quiz.reduce((acc,q,qi)=>acc+(matState.answers[qi]===q.answer?1:0),0);
-    fb.addDoc(fb.collection(fb.db, "students", currentUser, "quizResults"), {
-      course: matState.courseId, chapter: matState.chapterId,
-      score, total: chapter.quiz.length, createdAt: new Date().toISOString(),
+    apiCall({
+      action: "submitQuiz",
+      studentId: currentUser,
+      course: matState.courseId,
+      chapter: matState.chapterId,
+      score, total: chapter.quiz.length
     }).catch(()=>{});
   }
 }
@@ -1254,7 +1091,7 @@ function retakeQuiz(){
   renderMatContent();
 }
 
-// ---- payments: UPI / QR / bank details, confirmed manually via WhatsApp ----
+// Payments
 function payHTML(planLabel){
   const p = SITE.payment;
   const upiUri = `upi://pay?pa=${encodeURIComponent(p.upiId)}&pn=${encodeURIComponent(p.payeeName)}&cu=INR`;
@@ -1284,21 +1121,31 @@ function openPay(planLabel){
 function closePay(){ document.getElementById("payModal").style.display = "none"; }
 
 async function notifyPayment(planLabel){
-  if (currentUser && fbReady){
-    try{
-      await fb.addDoc(fb.collection(fb.db, "students", currentUser, "payments"), {
-        plan: planLabel || "Not specified",
-        status: "pending_verification",
-        createdAt: new Date().toISOString(),
-      });
-    } catch(e){ /* non-fatal — WhatsApp notification still goes through */ }
+  if (currentUser){
+    apiCall({
+      action: "notifyPayment",
+      studentId: currentUser,
+      plan: planLabel || "Not specified"
+    }).catch(()=>{});
   }
   const waText = encodeURIComponent(`Hi ${SITE.tutorName}, I've completed the payment${planLabel ? " for " + planLabel : ""}. Sharing the screenshot here.`);
   window.open(`https://wa.me/${SITE.payment.whatsapp}?text=${waText}`, "_blank");
   toast("Opening WhatsApp to confirm your payment…");
 }
 
-// ---- expose functions referenced by inline HTML handlers (needed since this is a module script) ----
+// Restore saved session on page load
+window.addEventListener("DOMContentLoaded", ()=>{
+  const saved = localStorage.getItem("vertex_student");
+  if (saved){
+    try {
+      currentUserData = JSON.parse(saved);
+      currentUser = currentUserData.id;
+      enterDashboard();
+    } catch(e){}
+  }
+});
+
+// Explicit window bindings for inline HTML onclick handlers
 window.openAuth = openAuth;
 window.closeAuth = closeAuth;
 window.renderAuth = renderAuth;
